@@ -1,0 +1,112 @@
+{
+  "title": "Launch A Project-Based Learning Course",
+  "description": "Mindmap describing the steps to design, launch, and optimize a project-based online course.",
+  "nodes": [
+    {
+      "id": "root-launch-plan",
+      "label": "Course Launch Blueprint",
+      "parentId": null,
+      "notes": "High-level view of the entire launch plan.",
+      "children": [
+        {
+          "id": "pillar-market-fit",
+          "label": "Validate The Topic",
+          "parentId": "root-launch-plan",
+          "notes": "Make sure the topic solves a real pain point.",
+          "children": [
+            {
+              "id": "node-surveys",
+              "label": "Learner Surveys",
+              "parentId": "pillar-market-fit",
+              "notes": "Collect 20–30 survey responses to confirm demand."
+            },
+            {
+              "id": "node-problem-interviews",
+              "label": "Problem Interviews",
+              "parentId": "pillar-market-fit",
+              "notes": "Run 5 interviews to capture language and objections."
+            }
+          ]
+        },
+        {
+          "id": "pillar-content-ops",
+          "label": "Design Curriculum",
+          "parentId": "root-launch-plan",
+          "notes": "Define outcomes, projects, and pacing.",
+          "children": [
+            {
+              "id": "node-outcomes",
+              "label": "Learning Outcomes",
+              "parentId": "pillar-content-ops",
+              "notes": "List 4 measurable outcomes tied to portfolio pieces."
+            },
+            {
+              "id": "node-projects",
+              "label": "Signature Projects",
+              "parentId": "pillar-content-ops",
+              "notes": "Design 2–3 projects that mirror real-world briefs."
+            },
+            {
+              "id": "node-feedback",
+              "label": "Feedback Loops",
+              "parentId": "pillar-content-ops",
+              "notes": "Define how peers + mentors give feedback."
+            }
+          ]
+        },
+        {
+          "id": "pillar-launch",
+          "label": "Marketing & Enrollment",
+          "parentId": "root-launch-plan",
+          "notes": "Generate interest and convert qualified learners.",
+          "children": [
+            {
+              "id": "node-prelaunch",
+              "label": "Prelaunch List",
+              "parentId": "pillar-launch",
+              "notes": "Warm up an email list + social audience."
+            },
+            {
+              "id": "node-webinar",
+              "label": "Launch Webinar",
+              "parentId": "pillar-launch",
+              "notes": "Host a live session to demo the curriculum."
+            },
+            {
+              "id": "node-enrollment",
+              "label": "Enrollment Window",
+              "parentId": "pillar-launch",
+              "notes": "Open cart for 10 days with scarcity messaging."
+            }
+          ]
+        },
+        {
+          "id": "pillar-ops",
+          "label": "Deliver & Optimize",
+          "parentId": "root-launch-plan",
+          "notes": "Smooth delivery + continuous improvement.",
+          "children": [
+            {
+              "id": "node-onboarding",
+              "label": "Student Onboarding",
+              "parentId": "pillar-ops",
+              "notes": "Welcome call + toolkit walkthrough."
+            },
+            {
+              "id": "node-analytics",
+              "label": "Learning Analytics",
+              "parentId": "pillar-ops",
+              "notes": "Track completion, NPS, and project quality."
+            },
+            {
+              "id": "node-iteration",
+              "label": "Iteration Cycle",
+              "parentId": "pillar-ops",
+              "notes": "Improve content after each cohort retro."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
