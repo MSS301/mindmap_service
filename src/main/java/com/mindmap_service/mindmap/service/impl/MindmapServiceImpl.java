@@ -10,10 +10,14 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mindmap_service.mindmap.client.GeminiClient;
+import com.mindmap_service.mindmap.client.WalletFeignClient;
+import com.mindmap_service.mindmap.dto.DeductTokenRequest;
 import com.mindmap_service.mindmap.dto.MindmapPromptRequest;
 import com.mindmap_service.mindmap.dto.MindmapResponse;
 import com.mindmap_service.mindmap.dto.MindmapSummary;
 import com.mindmap_service.mindmap.dto.MindmapUpdateRequest;
+import com.mindmap_service.mindmap.dto.TokenResponse;
+import com.mindmap_service.mindmap.dto.WalletApiResponse;
 import com.mindmap_service.mindmap.exception.MindmapBadRequestException;
 import com.mindmap_service.mindmap.exception.MindmapNotFoundException;
 import com.mindmap_service.mindmap.model.MindmapMetadata;
@@ -22,17 +26,43 @@ import com.mindmap_service.mindmap.service.MindmapService;
 import com.mindmap_service.mindmap.storage.MindmapStorage;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MindmapServiceImpl implements MindmapService {
 
     private final GeminiClient geminiClient;
     private final MindmapStorage storage;
     private final MindmapNotificationPublisher notificationPublisher;
     private final ObjectMapper objectMapper;
+    private final WalletFeignClient walletFeignClient;
 
     public MindmapResponse createMindmap(MindmapPromptRequest request) {
+        // Deduct 1 token from wallet before generating mindmap
+        UUID mindmapId = UUID.randomUUID();
+
+        DeductTokenRequest deductRequest = DeductTokenRequest.builder()
+                .userId(request.getUserId().toString())
+                .tokens(1)
+                .description("Generate mindmap: " + (request.getName() != null ? request.getName() : "New mindmap"))
+                .referenceType("MINDMAP_GENERATION")
+                .referenceId(mindmapId.toString())
+                .build();
+
+        try {
+            WalletApiResponse<TokenResponse> response = walletFeignClient.deductToken(deductRequest);
+            log.info(
+                    "Token deducted for user {}. Remaining tokens: {}",
+                    request.getUserId(),
+                    response.getResult().getTokenAfter());
+        } catch (Exception e) {
+            log.error("Failed to deduct token for user {}: {}", request.getUserId(), e.getMessage());
+            throw new MindmapBadRequestException("Cannot create mindmap: " + e.getMessage());
+        }
+
+        // Generate mindmap after token deduction succeeds
         JsonNode mindmap = geminiClient.generateMindmap(request.getUserId(), request.getPrompt(), request.getProject());
         MindmapMetadata metadata = storage.saveMindmap(request, mindmap);
         notificationPublisher.notifyMindmapReady(metadata);
