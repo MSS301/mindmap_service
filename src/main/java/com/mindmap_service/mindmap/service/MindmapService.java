@@ -27,4 +27,8 @@ public interface MindmapService {
     void deleteMindmapById(UUID mindmapId);
 
     void notifyManually(UUID userId, UUID mindmapId);
+
+    byte[] downloadMindmap(UUID userId, UUID mindmapId);
+
+    byte[] downloadMindmapById(UUID mindmapId);
 }

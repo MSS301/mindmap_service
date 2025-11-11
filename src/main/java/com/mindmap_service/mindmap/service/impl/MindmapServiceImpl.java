@@ -1,5 +1,6 @@
 package com.mindmap_service.mindmap.service.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mindmap_service.mindmap.client.GeminiClient;
 import com.mindmap_service.mindmap.dto.MindmapPromptRequest;
 import com.mindmap_service.mindmap.dto.MindmapResponse;
@@ -28,6 +30,7 @@ public class MindmapServiceImpl implements MindmapService {
     private final GeminiClient geminiClient;
     private final MindmapStorage storage;
     private final MindmapNotificationPublisher notificationPublisher;
+    private final ObjectMapper objectMapper;
 
     public MindmapResponse createMindmap(MindmapPromptRequest request) {
         JsonNode mindmap = geminiClient.generateMindmap(request.getUserId(), request.getPrompt(), request.getProject());
@@ -89,6 +92,30 @@ public class MindmapServiceImpl implements MindmapService {
         MindmapMetadata metadata =
                 storage.find(userId, mindmapId).orElseThrow(() -> new MindmapNotFoundException("Mindmap not found"));
         notificationPublisher.notifyMindmapReady(metadata);
+    }
+
+    public byte[] downloadMindmap(UUID userId, UUID mindmapId) {
+        MindmapMetadata metadata =
+                storage.find(userId, mindmapId).orElseThrow(() -> new MindmapNotFoundException("Mindmap not found"));
+        JsonNode mindmap = storage.readMindmap(metadata);
+        try {
+            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(mindmap);
+            return json.getBytes(StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize mindmap for download", e);
+        }
+    }
+
+    public byte[] downloadMindmapById(UUID mindmapId) {
+        MindmapMetadata metadata =
+                storage.findById(mindmapId).orElseThrow(() -> new MindmapNotFoundException("Mindmap not found"));
+        JsonNode mindmap = storage.readMindmap(metadata);
+        try {
+            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(mindmap);
+            return json.getBytes(StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize mindmap for download", e);
+        }
     }
 
     private MindmapResponse toResponse(MindmapMetadata metadata, JsonNode mindmap) {

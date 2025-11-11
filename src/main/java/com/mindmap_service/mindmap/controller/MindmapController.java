@@ -5,7 +5,10 @@ import java.util.UUID;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -97,5 +100,25 @@ public class MindmapController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void notifyUser(@PathVariable UUID userId, @PathVariable UUID mindmapId) {
         mindmapService.notifyManually(userId, mindmapId);
+    }
+
+    @Operation(summary = "Download a mindmap as JSON file")
+    @GetMapping("/users/{userId}/{mindmapId}/download")
+    public ResponseEntity<byte[]> downloadMindmap(@PathVariable UUID userId, @PathVariable UUID mindmapId) {
+        byte[] content = mindmapService.downloadMindmap(userId, mindmapId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"mindmap-" + mindmapId + ".json\"")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(content);
+    }
+
+    @Operation(summary = "Download a mindmap by id (admin)")
+    @GetMapping("/admin/{mindmapId}/download")
+    public ResponseEntity<byte[]> downloadMindmapAdmin(@PathVariable UUID mindmapId) {
+        byte[] content = mindmapService.downloadMindmapById(mindmapId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"mindmap-" + mindmapId + ".json\"")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(content);
     }
 }
